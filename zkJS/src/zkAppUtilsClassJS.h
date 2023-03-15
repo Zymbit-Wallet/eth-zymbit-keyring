@@ -1,5 +1,5 @@
 #include <napi.h>
-#include "../../C++/zkAppUtilsClass.h"
+#include "./zkAppUtilsClass.h"
 #include <string>
 #include <sstream>
 #include <iostream>
