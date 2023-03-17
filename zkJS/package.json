@@ -1,0 +1,11 @@
+{
+    "name": "zkjs",
+    "version": "1.0.0",
+    "description": "Node.js module for interfacing with Zymbit hardware wallet",
+    "private": true,
+    "gypfile": true,
+    "dependencies": {
+        "bindings": "~1.2.1",
+        "node-addon-api": "^6.0.0"
+    }
+}
