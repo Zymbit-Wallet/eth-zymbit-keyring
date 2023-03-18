@@ -574,19 +574,19 @@ Napi::Value zkObj::genWalletChildKey(const Napi::CallbackInfo& info)
    {
       exception << "4 Arguments Expected. But " << info.Length() << " Arguments Were Provided.";
    }
-   if (!info[0].IsString())
+   if (!info[0].IsNumber())
    {
       exception << " Int expected for Argument 1";
    }
-   if (!info[1].IsString())
+   if (!info[1].IsNumber())
    {
       exception << " Int expected for Argument 2";
    }
-   if (!info[2].IsString())
+   if (!info[2].IsBoolean())
    {
       exception << " Boolean expected for Argument 3";
    }
-   if (!info[3].IsString())
+   if (!info[3].IsBoolean())
    {
       exception << " Boolean expected for Argument 4";
    }
@@ -597,9 +597,9 @@ Napi::Value zkObj::genWalletChildKey(const Napi::CallbackInfo& info)
    }
 
    Napi::Number parent_slot = info[0].As<Napi::Number>();
-   Napi::Number node_index = info[0].As<Napi::Number>();
-   Napi::Boolean is_hardened = info[0].As<Napi::Boolean>();
-   Napi::Boolean return_chain_code = info[0].As<Napi::Boolean>();
+   Napi::Number node_index = info[1].As<Napi::Number>();
+   Napi::Boolean is_hardened = info[2].As<Napi::Boolean>();
+   Napi::Boolean return_chain_code = info[3].As<Napi::Boolean>();
    zkAppUtils::byteArray chain_code;
 
    int child_slot = this->_zkCTX->genWalletChildKey(parent_slot, node_index, is_hardened, return_chain_code, &chain_code);
