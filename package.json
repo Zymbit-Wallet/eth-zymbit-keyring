@@ -9,6 +9,11 @@
   "author": "Shivaansh Kapoor",
   "license": "ISC",
   "dependencies": {
-    "assert": "^2.0.0"
+    "assert": "^2.0.0",
+    "ethereum-cryptography": "^1.2.0",
+    "ethers": "^6.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^10.2.0"
   }
 }

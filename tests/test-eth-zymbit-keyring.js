@@ -1,19 +1,21 @@
 const assert = require('assert')
-const ethUtil = require('ethereumjs-util')
-const sigUtil = require('eth-sig-util')
-const EthereumTx = require('ethereumjs-tx')
+const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
 
 const ZymbitKeyring = require('../src/eth-zymbit-keyring')
+const zk = new zkJS.zkObj()
 
 describe('ZymbitKeyring', function () {
-    let keyring
-    beforeEach(async function() {
-        keyring = new ZymbitKeyring()
-    })
+    const walletName = "TestWallet"
+    const starting_slots = [...zk.getAllocSlotsList(false)].filter(slot => slot > 15)
+    const new_wallet = zk.genWalletMasterSeedWithBIP39("secp256k1", walletName)
+    console.log(new_wallet)
+    const opts = {
+
+    }
+    const keyring = new ZymbitKeyring()
 
     describe('constructor', function(done) {
         it('constructs', function async (done) {
-            const obj = new ZymbitKeyring({hdPath: `m/44'/60'/0'/0`})
             assert.equal(typeof obj, 'object')
             done()
         })
@@ -24,18 +26,6 @@ describe('ZymbitKeyring', function () {
             const type = ZymbitKeyring.type
             assert.equal(type, 'Zymbit Hardware Wallet')
         })
-    })
-
-    describe('#type', function() {
-        it('returns the correct value', function() {
-            const type = keyring.type
-            const correct = TrezorKeyring.type
-            assert.equal(type, correct)
-        })
-    })
-
-    describe('#serialize', function() {
-
     })
 
 

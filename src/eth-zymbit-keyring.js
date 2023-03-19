@@ -1,4 +1,6 @@
 const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
+const { ethers } = require("ethers");
+const { bytesToHex } = require('ethereum-cryptography/utils');
 
 const BIP44_ETH_BASE_PATH = `m/44'/60'/0'/0`
 const type = 'Zymbit Hardware Wallet'
@@ -15,7 +17,10 @@ class ZymbitKeyring {
   }
 
   serialize() {
-
+    return Promise.resolve({
+      wallet_name: this.wallet_name,
+      master_slot: this.master_slot
+    })
   }
 
   deserialize(opts = {}) {
@@ -44,7 +49,14 @@ class ZymbitKeyring {
     }
     this.base_slot = 0
     this.account_slots = []
-    const slots = [...zk.getAllocSlotsList(false)].filter(slot => slot > 15)
+    
+    const slots = []
+    const inputBuffer = zk.getAllocSlotsList(false)
+    for(let i = 0; i < inputBuffer.length / 4; i++){
+        const slot = inputBuffer.readInt32LE(4*i)
+        if(slot > 15) slots.push(slot)
+    }
+
     for (const slot of slots) {
       const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot)
       if (slotDetails.wallet_name == this.wallet_name) {
@@ -90,13 +102,38 @@ class ZymbitKeyring {
       case `m/44'/60'/0'`:
         slot = zk.genWalletChildKey(deepestPath.slot, 0, false, false)
         break;
-      case `m/44'/60'/0'/0`:
+      case this.base_path:
         return deepestPath.slot
     }
     const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot.slot)
     slotDetails.slot = slot.slot
     return this.generateBasePathKey(slotDetails)
   }
+
+  addAccounts(n = 1) {
+    const newAccounts = []
+    if(n < 1) return newAccounts
+
+    let nextAccountIndex = this.account_slots.reduce((prev, curr) => {
+      if (Number(prev < Number(curr.node_address.slice(this.base_path.length + 1)))) {
+        return Number(curr.node_address.slice(this.base_path.length + 1)) + 1
+      } else return prev + 1
+    }, 0)
+    
+    for(let i = 0; i < n; i++){
+      const slot = zk.genWalletChildKey(this.base_slot, nextAccountIndex, false, false)
+      const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot.slot)
+      slotDetails.slot = slot.slot
+      delete slotDetails.wallet_name
+      this.account_slots.push(slotDetails)
+      const newAccountEthAddress = ethers.computeAddress('0x'+bytesToHex(zk.exportPubKey(slotDetails.slot,false)))
+      newAccounts.push(newAccountEthAddress)
+      nextAccountIndex++
+    }
+
+    return newAccounts
+  }
+
 
 }
 
