@@ -134,6 +134,9 @@ class ZymbitKeyring {
     return newAccounts
   }
 
+  exportAccount (address) {
+    throw new Error('Not supported on Zymbit devices')
+  }
 
 }
 
