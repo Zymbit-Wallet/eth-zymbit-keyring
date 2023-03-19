@@ -49,7 +49,7 @@ class ZymbitKeyring {
     }
     this.base_slot = 0
     this.account_slots = []
-    
+
     const slots = []
     const inputBuffer = zk.getAllocSlotsList(false)
     for(let i = 0; i < inputBuffer.length / 4; i++){
@@ -132,6 +132,10 @@ class ZymbitKeyring {
     }
 
     return newAccounts
+  }
+
+  getAccounts(){
+    return this.account_slots.map(obj => ethers.computeAddress('0x'+bytesToHex(zk.exportPubKey(obj.slot,false))))
   }
 
 
