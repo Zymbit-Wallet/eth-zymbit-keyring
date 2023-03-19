@@ -20,8 +20,8 @@ opts = {
 
 const zymbitKeyring = new keyring(opts)
 
-console.log(zymbitKeyring.addAccounts(3))
+// console.log(zymbitKeyring.addAccounts(3))
 
-console.log(zymbitKeyring)
+// console.log(zymbitKeyring)
 
 console.log(zymbitKeyring.getAccounts())

@@ -138,7 +138,9 @@ class ZymbitKeyring {
     return this.account_slots.map(obj => ethers.computeAddress('0x'+bytesToHex(zk.exportPubKey(obj.slot,false))))
   }
 
-
+  exportAccount (address) {
+    throw new Error('Not supported on Zymbit devices')
+  }
 }
 
 ZymbitKeyring.type = type;
