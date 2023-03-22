@@ -1,21 +1,21 @@
-import zymkey
+import zymkey 
 
-print(zymkey.client.get_slot_alloc_list())
+packet =(bytes. ("b2c0a7451cf0bd1bdc86ee3fbbbfe6baf502670bae2a71cd093b37f6ff4c4102"))
+print(packet)
+   
+signature, y_parity = zymkey.client.sign(
+    packet, slot=22, return_recid=True)
+N = 115792089237316195423570985008687907852837564279074904382605163141518161494337
+r = int.from_bytes(signature[:32], "big")
+s = int.from_bytes(signature[-32:], "big")
 
-# Create a master seed and return the BIP39 mnemonic
-# master_key_generator = bytearray("3xampleM@sterK3Y", 'utf-8')
-wallet_name = "MyExampleWallet"
+y_parity = bool(y_parity.value)
+if((s*2) >= N):
+    y_parity = not y_parity
+    s = N - s
 
-# child_slot = zymkey.client.gen_wallet_child_key(parent_key_slot = 22, index = 44, hardened = True)
-# print(child_slot)
+v = 1 * 2 + 35 + int(y_parity)
 
-# Use the BIP39 recovery strategy to tell zymkey to return a mnemonic. Takes a base 64 encoded string for a BIP39 passphrase. Can be empty string.
-use_BIP39_recovery = zymkey.RecoveryStrategyBIP39()
-master_slot, BIP39_mnemonic = zymkey.client.gen_wallet_master_seed("secp256k1", '', wallet_name, use_BIP39_recovery)
-print("Master Slot:%s\nBIP39 mnemonic (write this down!):\n%s" % (master_slot, BIP39_mnemonic))
+signature = '0x'+hex(r)[2:].zfill(64)+hex(s)[2:].zfill(64)+hex(v)[2:]
 
-# print(zymkey.client.get_wallet_key_slot("m/44'/60'/0'/0/0", 'MyExampleWallet'))
-
-# for slot in zymkey.client.get_slot_alloc_list()[0]:
-#     if(slot>15):
-#         print(zymkey.client.get_wallet_node_addr(slot))
+print(signature)

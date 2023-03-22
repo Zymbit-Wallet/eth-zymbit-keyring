@@ -268,7 +268,7 @@ Napi::Value zkObj::genECDSASigFromDigest(const Napi::CallbackInfo& info)
    Napi::Buffer<uint8_t> digest_input = info[0].As<Napi::Buffer<uint8_t>>();
    zkAppUtils::byteArray* digest = new zkAppUtils::byteArray(digest_input.Data(), digest_input.Data() + digest_input.Length());
 
-   Napi::Number slot = info[0].As<Napi::Number>();
+   Napi::Number slot = info[1].As<Napi::Number>();
    uint8_t rec_id;
 
    zkAppUtils::byteArray* signature = this->_zkCTX->genECDSASigFromDigest(*digest, rec_id, slot);
