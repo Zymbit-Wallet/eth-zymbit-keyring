@@ -34,7 +34,7 @@ const zymbitKeyring = new keyring(opts)
 
 let accounts = zymbitKeyring.getAccounts()
 
-let fromAccount = accounts[1]
+let fromAccount = accounts[0]
 
 const txParams = {
   from: fromAccount,
@@ -51,12 +51,9 @@ const txParams = {
 const message =
   '0x879a053d4800c6354e76c7985a865d2922c82fb5b3f4577b2fe08b998954f2e0';
 
-
-
-const encodedTransaction = Buffer.concat([Buffer.from([2]), tx.serialize()])
-const keccakHash = ethers.keccak256(encodedTransaction)
-
 tx = zymbitKeyring.signTransaction(fromAccount.toLowerCase(), tx)
 console.log(tx.verifySignature())
+
+console.log(zymbitKeyring.signMessage(fromAccount, message))
 
 // console.log(zymbitKeyring.addAccounts(3))

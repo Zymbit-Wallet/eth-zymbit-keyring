@@ -9,6 +9,7 @@
   "author": "Shivaansh Kapoor",
   "license": "ISC",
   "dependencies": {
+    "@metamask/eth-sig-util": "^5.0.2",
     "assert": "^2.0.0",
     "ethereum-cryptography": "^1.2.0",
     "ethereumjs-tx": "^2.1.2",

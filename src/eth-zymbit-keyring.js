@@ -1,8 +1,8 @@
 const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
 const { ethers } = require("ethers");
 const { bytesToHex } = require('ethereum-cryptography/utils');
-const EthereumTx = require('ethereumjs-tx').Transaction
-const { BN } = require('ethereumjs-util')
+const { BN, stripHexPrefix } = require('ethereumjs-util')
+const { concatSig } = require('@metamask/eth-sig-util');
 
 const BIP44_ETH_BASE_PATH = `m/44'/60'/0'/0`
 const type = 'Zymbit Hardware Wallet'
@@ -17,6 +17,7 @@ class ZymbitKeyring {
     this.base_path = BIP44_ETH_BASE_PATH
     this.deserialize(opts);
   }
+
 
   serialize() {
     return Promise.resolve({
@@ -119,33 +120,30 @@ class ZymbitKeyring {
   }
 
   signTransaction(address, transaction) {
-    const signingSlot = (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address)).slot
+    const signingSlot = (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
     if (!signingSlot) throw new Error("Keyring does not contain this address")
 
     const txHash = transaction.hash(true)
     const { signature, recovery_id } = zk.genECDSASigFromDigest(txHash, signingSlot)
 
-    const N = new BN('115792089237316195423570985008687907852837564279074904382605163141518161494337', 10)
-    let s = new BN(signature.slice(32,64).toString('hex'), 16)
-    let y_parity = Boolean(recovery_id)
-    if ((s.muln(2)).gte(N)) {
-      y_parity = !y_parity
-      s = N.sub(s)
-    }
-
-    transaction.r = signature.slice(0, 32)
-    transaction.s = s.toBuffer()
-    if(transaction.getChainId()){
-      transaction.v =  35 + (transaction.getChainId() * 2) + (y_parity ? 1 : 0)
-    } else {
-      transaction.v = 27 + (y_parity ? 1 : 0)
-    }
+    const validSignature = this._generateValidECDSASignature(signature, recovery_id, transaction.getChainId())
+    transaction.r = validSignature.r
+    transaction.s = validSignature.s
+    transaction.v = validSignature.v
 
     return transaction
-
   }
 
   signMessage(address, data) {
+    const signingSlot = (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
+    if (!signingSlot) throw new Error("Keyring does not contain this address")
+
+    const messageToSign = Buffer.from(stripHexPrefix(data), 'hex')
+    const { signature, recovery_id } = zk.genECDSASigFromDigest(messageToSign, signingSlot)
+
+    const validSignature = this._generateValidECDSASignature(signature, recovery_id)
+
+    return concatSig(validSignature.v, validSignature.r, validSignature.s)
 
   }
 
@@ -174,6 +172,27 @@ class ZymbitKeyring {
     const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot.slot)
     slotDetails.slot = slot.slot
     return this._generateBasePathKey(slotDetails)
+  }
+
+  _generateValidECDSASignature(signature, recovery_id, chain_Id = false) {
+    const N = new BN('115792089237316195423570985008687907852837564279074904382605163141518161494337', 10)
+    let s = new BN(signature.slice(32, 64).toString('hex'), 16)
+    let y_parity = Boolean(recovery_id)
+    if ((s.muln(2)).gte(N)) {
+      y_parity = !y_parity
+      s = N.sub(s)
+    }
+
+    const validSignature = {}
+    validSignature.r = signature.slice(0, 32)
+    validSignature.s = s.toBuffer()
+    if (chain_Id) {
+      validSignature.v = 35 + (chain_Id * 2) + (y_parity ? 1 : 0)
+    } else {
+      validSignature.v = 27 + (y_parity ? 1 : 0)
+    }
+
+    return validSignature
   }
 
 }
