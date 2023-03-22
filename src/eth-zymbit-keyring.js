@@ -2,9 +2,7 @@ const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
 const { ethers } = require("ethers");
 const { bytesToHex } = require('ethereum-cryptography/utils');
 const EthereumTx = require('ethereumjs-tx').Transaction
-const {
-  BN
-} = require('ethereumjs-util')
+const { BN } = require('ethereumjs-util')
 
 const BIP44_ETH_BASE_PATH = `m/44'/60'/0'/0`
 const type = 'Zymbit Hardware Wallet'
@@ -124,26 +122,24 @@ class ZymbitKeyring {
     const signingSlot = (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address)).slot
     if (!signingSlot) throw new Error("Keyring does not contain this address")
 
-    const txHash = transaction.hash(false)
-    console.log(new TextDecoder("utf8", { fatal: false }).decode(txHash))
+    const txHash = transaction.hash(true)
     const { signature, recovery_id } = zk.genECDSASigFromDigest(txHash, signingSlot)
 
-
-
     const N = new BN('115792089237316195423570985008687907852837564279074904382605163141518161494337', 10)
-    let s = new BN(signature.slice(32, 64).toString('hex'), 16)
+    let s = new BN(signature.slice(32,64).toString('hex'), 16)
     let y_parity = Boolean(recovery_id)
     if ((s.muln(2)).gte(N)) {
       y_parity = !y_parity
       s = N.sub(s)
     }
-    const v = transaction.chainId * 2 + 35 + (y_parity ? 1 : 0)
 
     transaction.r = signature.slice(0, 32)
     transaction.s = s.toBuffer()
-    transaction.v = v
-
-    console.log(Buffer.concat([transaction.r, transaction.s, Buffer.from([transaction.v])]).toString('hex'))
+    if(transaction.getChainId()){
+      transaction.v =  35 + (transaction.getChainId() * 2) + (y_parity ? 1 : 0)
+    } else {
+      transaction.v = 27 + (y_parity ? 1 : 0)
+    }
 
     return transaction
 

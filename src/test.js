@@ -53,9 +53,10 @@ const message =
 
 
 
+const encodedTransaction = Buffer.concat([Buffer.from([2]), tx.serialize()])
+const keccakHash = ethers.keccak256(encodedTransaction)
+
 tx = zymbitKeyring.signTransaction(fromAccount.toLowerCase(), tx)
 console.log(tx.verifySignature())
-console.log(ethers.computeAddress('0x' + ecrecover(tx.hash(),tx.v,tx.r,tx.s,tx.getChainId()).toString('hex')))
-console.log(fromAccount)
 
 // console.log(zymbitKeyring.addAccounts(3))
