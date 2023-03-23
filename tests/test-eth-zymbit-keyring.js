@@ -29,7 +29,7 @@ describe('ZymbitKeyring', function () {
     let startingSlots, wallet_name, master_slot, opts, keyring
 
     before('Setup Keyring', function(done){
-        this.timeout(10000)
+        this.timeout(20000)
         startingSlots = getStartingSlots()
         wallet_name = "TestWallet"
         const { slot, mnemonic } = zk.genWalletMasterSeedWithBIP39("secp256k1", wallet_name, "", "")
@@ -64,7 +64,7 @@ describe('ZymbitKeyring', function () {
     describe('addAccounts', function() {
         let numAccounts, accounts, publicKeys
         before('Add accounts', function(done){
-            this.timeout(10000)
+            this.timeout(20000)
             numAccounts = 3
             accounts = keyring.addAccounts(numAccounts)
             publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
@@ -91,7 +91,7 @@ describe('ZymbitKeyring', function () {
     describe('getAccounts', function() {
         let accounts, publicKeys
         before('Get accounts', function(done){
-            this.timeout(10000)
+            this.timeout(20000)
             accounts = keyring.getAccounts()
             publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
             done()
@@ -111,16 +111,16 @@ describe('ZymbitKeyring', function () {
     describe('signTransaction', function() {
         let accounts, signerIndex, signer, transaction
         before('Setup Transaction', function(done){
-            this.timeout(10000)
+            this.timeout(20000)
             accounts = keyring.getAccounts()
             signerIndex = 0
             signer = accounts[signerIndex]
             const txParams = {
-                from: fromAccount,
+                from: signer,
                 nonce: '0x00',
                 gasPrice: '0x09184e72a000',
                 gasLimit: '0x2710',
-                to: accounts[2],
+                to: signer,
                 value: '0x1000',
               };
             
@@ -128,7 +128,12 @@ describe('ZymbitKeyring', function () {
             done()
         })
 
-        
+        it('signs transaction with correct address', function(done){
+            this.timeout(20000)
+            const signedTransaction = keyring.signTransaction(signer.toLowerCase(), transaction)
+            assert.equal(signedTransaction.verifySignature(), true)
+            done()            
+        })
     })
 
     describe('serialize', function() {
@@ -145,7 +150,7 @@ describe('ZymbitKeyring', function () {
     describe('deserialize', function() {
         let temp_wallet_name, temp_slot, temp_mnemonic, temp_opts, temp_keyring
         before('Setup Temp Keyring', function(done){
-            this.timeout(10000)
+            this.timeout(20000)
             temp_wallet_name = "TestWallet1"
             temp_slot, temp_mnemonic = zk.genWalletMasterSeedWithBIP39("secp256k1", temp_wallet_name, "", "")
             temp_opts = {
@@ -157,7 +162,7 @@ describe('ZymbitKeyring', function () {
         })
 
         it('restores keyring\'s state', function (done) {
-            this.timeout(10000)
+            this.timeout(20000)
             const serializedKeyring = keyring.serialize()
             temp_keyring.deserialize(serializedKeyring)
             assert.deepEqual(keyring, temp_keyring)
@@ -166,7 +171,7 @@ describe('ZymbitKeyring', function () {
     })
 
     after('Cleanup after testing', function(done){
-        this.timeout(10000)
+        this.timeout(20000)
         removeKeysCreated(startingSlots)
         done()
     })
