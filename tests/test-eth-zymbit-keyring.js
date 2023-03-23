@@ -3,16 +3,19 @@ const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
 
 const ZymbitKeyring = require('../src/eth-zymbit-keyring');
 const { bytesToHex } = require('ethereum-cryptography/utils');
-const { ethers } = require('ethers')
+const { ethers } = require('ethers');
+const { randomInt } = require('crypto');
 const zk = new zkJS.zkObj()
 const EthereumTx = require('ethereumjs-tx').Transaction
+const { stripHexPrefix } = require('ethereumjs-util')
+const { toBuffer, ecrecover, pubToAddress } = require('@ethereumjs/util');
 
 const getStartingSlots = () => {
     const startingSlots = []
     const slotsBuffer = zk.getAllocSlotsList(false)
     for (let i = 0; i < slotsBuffer.length / 4; i++) {
-      const slot = slotsBuffer.readInt32LE(4 * i)
-      if (slot > 15) startingSlots.push(slot)
+        const slot = slotsBuffer.readInt32LE(4 * i)
+        if (slot > 15) startingSlots.push(slot)
     }
     return startingSlots
 }
@@ -20,15 +23,15 @@ const getStartingSlots = () => {
 const removeKeysCreated = startingSlots => {
     const slotsBuffer = zk.getAllocSlotsList(false)
     for (let i = 0; i < slotsBuffer.length / 4; i++) {
-      const slot = slotsBuffer.readInt32LE(4 * i)
-      if (slot > 15 && !startingSlots.includes(slot)) zk.removeKey(slot, false)
+        const slot = slotsBuffer.readInt32LE(4 * i)
+        if (slot > 15 && !startingSlots.includes(slot)) zk.removeKey(slot, false)
     }
 }
 
 describe('ZymbitKeyring', function () {
     let startingSlots, wallet_name, master_slot, opts, keyring
 
-    before('Setup Keyring', function(done){
+    before('Setup Keyring', function (done) {
         this.timeout(20000)
         startingSlots = getStartingSlots()
         wallet_name = "TestWallet"
@@ -42,10 +45,10 @@ describe('ZymbitKeyring', function () {
         done()
     })
 
-    describe('constructor', function() {
-       
+    describe('constructor', function () {
+
         let baseSlotDetails
-        before('Get base_slot details', function(){
+        before('Get base_slot details', function () {
             baseSlotDetails = zk.getWalletNodeAddrFromKeySlot(keyring.base_slot)
         })
         it('constructs', function () {
@@ -61,9 +64,9 @@ describe('ZymbitKeyring', function () {
         })
     })
 
-    describe('addAccounts', function() {
+    describe('addAccounts', function () {
         let numAccounts, accounts, publicKeys
-        before('Add accounts', function(done){
+        before('Add accounts', function (done) {
             this.timeout(20000)
             numAccounts = 3
             accounts = keyring.addAccounts(numAccounts)
@@ -76,10 +79,10 @@ describe('ZymbitKeyring', function () {
         })
 
         it('returns valid ethereum addresses', function () {
-            accounts.forEach(account =>{
+            accounts.forEach(account => {
                 assert.equal(ethers.isAddress(account), true)
             })
-        })  
+        })
 
         it('returns correct addresses', function () {
             accounts.forEach((account, index) => {
@@ -88,15 +91,15 @@ describe('ZymbitKeyring', function () {
         })
     })
 
-    describe('getAccounts', function() {
+    describe('getAccounts', function () {
         let accounts, publicKeys
-        before('Get accounts', function(done){
+        before('Get accounts', function (done) {
             this.timeout(20000)
             accounts = keyring.getAccounts()
             publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
             done()
         })
-        
+
         it('returns correct number of accounts', function () {
             assert.equal(accounts.length, keyring.account_slots.length)
         })
@@ -108,12 +111,12 @@ describe('ZymbitKeyring', function () {
         })
     })
 
-    describe('signTransaction', function() {
+    describe('signTransaction', function () {
         let accounts, signerIndex, signer, transaction
-        before('Setup Transaction', function(done){
+        before('Setup Transaction', function (done) {
             this.timeout(20000)
             accounts = keyring.getAccounts()
-            signerIndex = 0
+            signerIndex = randomInt(0, accounts.length)
             signer = accounts[signerIndex]
             const txParams = {
                 from: signer,
@@ -122,23 +125,48 @@ describe('ZymbitKeyring', function () {
                 gasLimit: '0x2710',
                 to: signer,
                 value: '0x1000',
-              };
-            
-            transaction = new EthereumTx(txParams, { chain: 'mainnet'})
+            };
+
+            transaction = new EthereumTx(txParams, { chain: 'mainnet' })
             done()
         })
 
-        it('signs transaction with correct address', function(done){
+        it('signs transaction with correct address', function (done) {
             this.timeout(20000)
             const signedTransaction = keyring.signTransaction(signer.toLowerCase(), transaction)
             assert.equal(signedTransaction.verifySignature(), true)
-            done()            
+            done()
         })
     })
 
-    describe('serialize', function() {
+    describe('signMessage', function () {
+        let accounts, signerIndex, signer, message
+        before('Setup Transaction', function (done) {
+            this.timeout(20000)
+            accounts = keyring.getAccounts()
+            signerIndex = randomInt(0, accounts.length)
+            signer = accounts[signerIndex]
+            message = '0x' + [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+            done()
+        })
+
+        it('signs message with correct address', function (done) {
+            this.timeout(20000)
+            const signature = keyring.signMessage(signer.toLowerCase(), message);
+            const r = toBuffer(signature.slice(0, 66));
+            const s = toBuffer(`0x${signature.slice(66, 130)}`);
+            const v = BigInt(`0x${signature.slice(130, 132)}`);
+            const m = toBuffer(message);
+            const pub = ecrecover(m, v, r, s);
+            const expectedAddress = ethers.getAddress(`0x${pubToAddress(pub).toString('hex')}`)
+            assert.deepEqual(expectedAddress, signer)
+            done()
+        })
+    })
+
+    describe('serialize', function () {
         let serializedKeyring
-        before('Get accounts', function(){
+        before('Get accounts', function () {
             serializedKeyring = keyring.serialize()
         })
         it('returns correct wallet_name and slot', function () {
@@ -147,12 +175,12 @@ describe('ZymbitKeyring', function () {
         })
     })
 
-    describe('deserialize', function() {
-        let temp_wallet_name, temp_slot, temp_mnemonic, temp_opts, temp_keyring
-        before('Setup Temp Keyring', function(done){
+    describe('deserialize', function () {
+        let temp_wallet_name, temp_keyring
+        before('Setup Temporary Keyring', function (done) {
             this.timeout(20000)
             temp_wallet_name = "TestWallet1"
-            temp_slot, temp_mnemonic = zk.genWalletMasterSeedWithBIP39("secp256k1", temp_wallet_name, "", "")
+            const { temp_slot, temp_mnemonic } = zk.genWalletMasterSeedWithBIP39("secp256k1", temp_wallet_name, "", "")
             temp_opts = {
                 wallet_name: temp_wallet_name,
                 master_slot: temp_slot
@@ -170,7 +198,7 @@ describe('ZymbitKeyring', function () {
         })
     })
 
-    after('Cleanup after testing', function(done){
+    after('Cleanup after testing', function (done) {
         this.timeout(20000)
         removeKeysCreated(startingSlots)
         done()
