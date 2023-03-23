@@ -22,8 +22,6 @@ opts = {
     master_slot: 16
 }
 
-
-
 // for (const value of inputBuffer.values()) {
 //     console.log(value);
 //   }
@@ -31,6 +29,8 @@ opts = {
 
 
 const zymbitKeyring = new keyring(opts)
+
+zymbitKeyring.addAccounts()
 
 let accounts = zymbitKeyring.getAccounts()
 

@@ -8,22 +8,17 @@ const BIP44_ETH_BASE_PATH = `m/44'/60'/0'/0`
 const type = 'Zymbit Hardware Wallet'
 const zk = new zkJS.zkObj()
 
-
-
 class ZymbitKeyring {
 
   constructor(opts = {}) {
-    this.type = type;
-    this.base_path = BIP44_ETH_BASE_PATH
     this.deserialize(opts);
   }
 
-
   serialize() {
-    return Promise.resolve({
+    return {
       wallet_name: this.wallet_name,
       master_slot: this.master_slot
-    })
+    }
   }
 
   deserialize(opts = {}) {
@@ -63,9 +58,9 @@ class ZymbitKeyring {
     for (const slot of slots) {
       const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot)
       if (slotDetails.wallet_name == this.wallet_name) {
-        if (slotDetails.node_address == this.base_path) {
+        if (slotDetails.node_address == ZymbitKeyring.base_path) {
           this.base_slot = slot
-        } else if (slotDetails.node_address.includes(this.base_path + "/")) {
+        } else if (slotDetails.node_address.includes(ZymbitKeyring.base_path + "/")) {
           slotDetails.slot = slot
           delete slotDetails.wallet_name
           this.account_slots.push(slotDetails)
@@ -77,7 +72,7 @@ class ZymbitKeyring {
       for (const slot of slots) {
         const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot)
         if (slotDetails.wallet_name == this.wallet_name) {
-          if (this.base_path.includes(slotDetails.node_address) && slotDetails.node_address.length > deepestPath.node_address.length) {
+          if (ZymbitKeyring.base_path.includes(slotDetails.node_address) && slotDetails.node_address.length > deepestPath.node_address.length) {
             slotDetails.slot = slot
             delete slotDetails.wallet_name
             deepestPath = slotDetails
@@ -86,8 +81,7 @@ class ZymbitKeyring {
       }
       this.base_slot = this._generateBasePathKey(deepestPath)
     }
-
-    return Promise.resolve()
+    
   }
 
 
@@ -96,8 +90,8 @@ class ZymbitKeyring {
     if (n < 1) return newAccounts
 
     let nextAccountIndex = this.account_slots.reduce((prev, curr) => {
-      if (Number(prev < Number(curr.node_address.slice(this.base_path.length + 1)))) {
-        return Number(curr.node_address.slice(this.base_path.length + 1)) + 1
+      if (Number(prev < Number(curr.node_address.slice(ZymbitKeyring.base_path.length + 1)))) {
+        return Number(curr.node_address.slice(ZymbitKeyring.base_path.length + 1)) + 1
       } else return prev + 1
     }, 0)
 
@@ -144,7 +138,6 @@ class ZymbitKeyring {
     const validSignature = this._generateValidECDSASignature(signature, recovery_id)
 
     return concatSig(validSignature.v, validSignature.r, validSignature.s)
-
   }
 
   exportAccount(address) {
@@ -173,7 +166,7 @@ class ZymbitKeyring {
       case `m/44'/60'/0'`:
         slot = zk.genWalletChildKey(deepestPath.slot, 0, false, false)
         break;
-      case this.base_path:
+      case ZymbitKeyring.base_path:
         return deepestPath.slot
     }
     const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot.slot)
@@ -203,10 +196,15 @@ class ZymbitKeyring {
   }
 
   _getSlot(address){
-    return (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
+    try{
+      return (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
+    } catch(e) {
+      return false
+    }
   }
 
 }
 
 ZymbitKeyring.type = type;
+ZymbitKeyring.base_path = BIP44_ETH_BASE_PATH
 module.exports = ZymbitKeyring;
