@@ -5,6 +5,7 @@ const ZymbitKeyring = require('../src/eth-zymbit-keyring');
 const { bytesToHex } = require('ethereum-cryptography/utils');
 const { ethers } = require('ethers')
 const zk = new zkJS.zkObj()
+const EthereumTx = require('ethereumjs-tx').Transaction
 
 const getStartingSlots = () => {
     const startingSlots = []
@@ -28,7 +29,7 @@ describe('ZymbitKeyring', function () {
     let startingSlots, wallet_name, master_slot, opts, keyring
 
     before('Setup Keyring', function(done){
-        this.timeout(20000)
+        this.timeout(10000)
         startingSlots = getStartingSlots()
         wallet_name = "TestWallet"
         const { slot, mnemonic } = zk.genWalletMasterSeedWithBIP39("secp256k1", wallet_name, "", "")
@@ -63,7 +64,7 @@ describe('ZymbitKeyring', function () {
     describe('addAccounts', function() {
         let numAccounts, accounts, publicKeys
         before('Add accounts', function(done){
-            this.timeout(20000)
+            this.timeout(10000)
             numAccounts = 3
             accounts = keyring.addAccounts(numAccounts)
             publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
@@ -90,7 +91,7 @@ describe('ZymbitKeyring', function () {
     describe('getAccounts', function() {
         let accounts, publicKeys
         before('Get accounts', function(done){
-            this.timeout(20000)
+            this.timeout(10000)
             accounts = keyring.getAccounts()
             publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
             done()
@@ -108,9 +109,24 @@ describe('ZymbitKeyring', function () {
     })
 
     describe('signTransaction', function() {
-        // const accounts = keyring.getAccounts()
-        // const signerIndex = 0
-        // const signer = accounts[signerIndex]
+        let accounts, signerIndex, signer, transaction
+        before('Setup Transaction', function(done){
+            this.timeout(10000)
+            accounts = keyring.getAccounts()
+            signerIndex = 0
+            signer = accounts[signerIndex]
+            const txParams = {
+                from: fromAccount,
+                nonce: '0x00',
+                gasPrice: '0x09184e72a000',
+                gasLimit: '0x2710',
+                to: accounts[2],
+                value: '0x1000',
+              };
+            
+            transaction = new EthereumTx(txParams, { chain: 'mainnet'})
+            done()
+        })
 
         
     })
@@ -129,7 +145,7 @@ describe('ZymbitKeyring', function () {
     describe('deserialize', function() {
         let temp_wallet_name, temp_slot, temp_mnemonic, temp_opts, temp_keyring
         before('Setup Temp Keyring', function(done){
-            this.timeout(20000)
+            this.timeout(10000)
             temp_wallet_name = "TestWallet1"
             temp_slot, temp_mnemonic = zk.genWalletMasterSeedWithBIP39("secp256k1", temp_wallet_name, "", "")
             temp_opts = {
@@ -141,7 +157,7 @@ describe('ZymbitKeyring', function () {
         })
 
         it('restores keyring\'s state', function (done) {
-            this.timeout(20000)
+            this.timeout(10000)
             const serializedKeyring = keyring.serialize()
             temp_keyring.deserialize(serializedKeyring)
             assert.deepEqual(keyring, temp_keyring)
@@ -150,7 +166,7 @@ describe('ZymbitKeyring', function () {
     })
 
     after('Cleanup after testing', function(done){
-        this.timeout(20000)
+        this.timeout(10000)
         removeKeysCreated(startingSlots)
         done()
     })
