@@ -54,9 +54,9 @@ class ZymbitKeyring {
     this.account_slots = []
 
     const slots = []
-    const inputBuffer = zk.getAllocSlotsList(false)
-    for (let i = 0; i < inputBuffer.length / 4; i++) {
-      const slot = inputBuffer.readInt32LE(4 * i)
+    const slotsBuffer = zk.getAllocSlotsList(false)
+    for (let i = 0; i < slotsBuffer.length / 4; i++) {
+      const slot = slotsBuffer.readInt32LE(4 * i)
       if (slot > 15) slots.push(slot)
     }
 
@@ -86,7 +86,7 @@ class ZymbitKeyring {
       }
       this.base_slot = this._generateBasePathKey(deepestPath)
     }
-    console.log(this)
+
     return Promise.resolve()
   }
 
@@ -120,7 +120,7 @@ class ZymbitKeyring {
   }
 
   signTransaction(address, transaction) {
-    const signingSlot = (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
+    const signingSlot = this._getSlot(address)
     if (!signingSlot) throw new Error("Keyring does not contain this address")
 
     const txHash = transaction.hash(true)
@@ -135,7 +135,7 @@ class ZymbitKeyring {
   }
 
   signMessage(address, data) {
-    const signingSlot = (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
+    const signingSlot = this._getSlot(address)
     if (!signingSlot) throw new Error("Keyring does not contain this address")
 
     const messageToSign = Buffer.from(stripHexPrefix(data), 'hex')
@@ -149,6 +149,13 @@ class ZymbitKeyring {
 
   exportAccount(address) {
     throw new Error('Not supported on Zymbit devices')
+  }
+
+  removeAccount(address) {
+    const slot = this._getSlot(address)
+    if (!slot) throw new Error("Keyring does not contain this address")
+
+    zk.removeKey(slot, false)
   }
 
   _generateBasePathKey(deepestPath) {
@@ -193,6 +200,10 @@ class ZymbitKeyring {
     }
 
     return validSignature
+  }
+
+  _getSlot(address){
+    return (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
   }
 
 }
