@@ -4,7 +4,7 @@
   "description": "An implementation of Metamask's keyring interface for Zymbit's hardware wallet products",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "Shivaansh Kapoor",
   "license": "ISC",
