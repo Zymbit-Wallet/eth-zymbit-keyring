@@ -147,7 +147,6 @@ class ZymbitKeyring {
   removeAccount(address) {
     const slot = this._getSlot(address)
     if (!slot) throw new Error("Keyring does not contain this address")
-
     zk.removeKey(slot, false)
   }
 

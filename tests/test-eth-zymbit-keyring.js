@@ -28,6 +28,7 @@ const removeKeysCreated = startingSlots => {
     }
 }
 
+
 describe('ZymbitKeyring', function () {
     let startingSlots, wallet_name, master_slot, opts, keyring
 
@@ -68,7 +69,7 @@ describe('ZymbitKeyring', function () {
         let numAccounts, accounts, publicKeys
         before('Add accounts', function (done) {
             this.timeout(20000)
-            numAccounts = 3
+            numAccounts = randomInt(3, 11)
             accounts = keyring.addAccounts(numAccounts)
             publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
             done()
@@ -174,6 +175,7 @@ describe('ZymbitKeyring', function () {
             assert.equal(serializedKeyring.master_slot, master_slot)
         })
     })
+
 
     describe('deserialize', function () {
         let temp_wallet_name, temp_keyring
