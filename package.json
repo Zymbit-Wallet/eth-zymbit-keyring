@@ -1,9 +1,10 @@
 {
   "name": "eth-zymbit-keyring",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "An implementation of Metamask's keyring interface for Zymbit's hardware wallet products",
   "scripts": {
-    "test": "mocha tests/test-eth-zymbit-keyring.test.js"
+    "test": "mocha tests/test-eth-zymbit-keyring.test.js",
+    "postinstall": "cd zkJS && npm install"
   },
   "author": "Shivaansh Kapoor",
   "license": "ISC",
@@ -16,6 +17,19 @@
     "ethers": "^6.1.0"
   },
   "devDependencies": {
+    "@metamask/auto-changelog": "^3.1.0",
     "mocha": "^10.2.0"
-  }
+  },
+  "main": "src/eth-zymbit-keyring.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShivaanshK/eth-zymbit-keyring.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ShivaanshK/eth-zymbit-keyring/issues"
+  },
+  "homepage": "https://github.com/ShivaanshK/eth-zymbit-keyring#readme"
 }
