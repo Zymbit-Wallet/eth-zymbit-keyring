@@ -2,9 +2,8 @@
   "name": "eth-zymbit-keyring",
   "version": "1.0.0",
   "description": "An implementation of Metamask's keyring interface for Zymbit's hardware wallet products",
-  "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha tests/test-eth-zymbit-keyring.test.js"
   },
   "author": "Shivaansh Kapoor",
   "license": "ISC",

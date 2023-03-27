@@ -1,6 +1,5 @@
 const assert = require('assert')
 const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
-
 const ZymbitKeyring = require('../src/eth-zymbit-keyring');
 const { bytesToHex } = require('ethereum-cryptography/utils');
 const { ethers } = require('ethers');
