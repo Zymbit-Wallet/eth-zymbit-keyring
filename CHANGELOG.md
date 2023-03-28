@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2]
+### Added
+- readme
+- changelog
+
+
 ## [1.0.1]
 ### Added
 - fixChangeLog
@@ -42,5 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - setup
 - Initial commit
 
-[Unreleased]: git+https://github.com/ShivaanshK/eth-zymbit-keyring/compare/v1.0.1...HEAD
+[Unreleased]: git+https://github.com/ShivaanshK/eth-zymbit-keyring/compare/v1.0.2...HEAD
+[1.0.2]: git+https://github.com/ShivaanshK/eth-zymbit-keyring/compare/v1.0.1...v1.0.2
 [1.0.1]: git+https://github.com/ShivaanshK/eth-zymbit-keyring/releases/tag/v1.0.1
