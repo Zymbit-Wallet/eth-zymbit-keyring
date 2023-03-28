@@ -1,6 +1,6 @@
 {
   "name": "eth-zymbit-keyring",
-  "version": "1.0.2",
+  "version": "0.0.1",
   "description": "An implementation of Metamask's keyring interface for Zymbit's hardware wallet products",
   "scripts": {
     "test": "mocha tests/test-eth-zymbit-keyring.test.js",
