@@ -48,6 +48,3 @@ jobs:
           name: release-authors
           path: gh-action__release-authors
           if-no-files-found: error
-      - uses: MetaMask/action-publish-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
