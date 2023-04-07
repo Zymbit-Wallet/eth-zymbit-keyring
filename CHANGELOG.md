@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- changelong
 - npm
 - npmignore
 - update changelog
@@ -48,5 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Merge branch 'main' of https://gitlab.com/zymbit/eth-zymbit-keyring
 - setup
 - Initial commit
+
 
 [Unreleased]: git+https://github.com/ShivaanshK/eth-zymbit-keyring/
