@@ -1,12 +1,12 @@
 # eth-zymbit-keyring
 
-An implementation of MetaMask's [Keyring interface](https://github.com/MetaMask/eth-simple-keyring#the-keyring-class-protocol) for Zymbit hardware wallet devices ([HSM6](https://www.zymbit.com/hsm6/) and [SCM](https://www.zymbit.com/scm/)).
+An implementation of MetaMask's [Keyring interface](https://github.com/MetaMask/eth-simple-keyring#the-keyring-class-protocol) for Zymbit devices with built in hardware wallets ([HSM6](https://www.zymbit.com/hsm6/) and [SCM](https://www.zymbit.com/scm/)).
 
-For the most part, it works the same way as [eth-hd-keyring](https://github.com/MetaMask/eth-hd-keyring), but uses a Zymbit HSM6 or SCM to store the keys and perform any signing operations. However, there are a some differences:
+For the most part, it works the same way as [eth-hd-keyring](https://github.com/MetaMask/eth-hd-keyring), but uses a Zymbit HSM6 or SCM to store the keys and perform any signing operations. However, there are some differences:
 
 - It requires that you have an HSM6 or SCM attached to a supported embedded device (Raspberry Pi or Jetson Nano)
 - All cryptographic operations involving keys are performed on the module itself
-- Zymbit devices don't support exporting private keys, so it does not support the `exportAccount` method 
+- Zymbit devices don't support exporting private keys, so it does not support the `exportAccount()` method 
 
 Installation
 -------
@@ -44,11 +44,11 @@ All below instance methods return Promises to allow asynchronous resolution.
 
 ### serialize()
 
-Retuerns a JSON-serializable object with the `wallet_name` or `master_slot` properties of the keyring. This object can be passed into `deserilaize()` to recover the state of the keyring. 
+Retuerns a JSON-serializable object with the `wallet_name` or `master_slot` properties of the keyring. This object can be passed into `deserialize()` to recover the state of the keyring. 
 
 ### deserialize( object )
 
-As discussed above, the deserialize() method will be passed the JavaScript object that you returned when the serialize() method was called.
+As discussed above, the `deserialize()` method will be passed the JavaScript object that you returned when the `serialize()` method was called.
 
 ### addAccounts( n = 1 )
 
@@ -56,7 +56,7 @@ Used to add new accounts to the keyring starting from `m/44'/60'/0'/0` and incre
 
 ### getAccounts()
 
-Returns an array of hex-string addresses for the Ethereum accounts that your Keyring is able to sign for.
+Returns an array of hex-string addresses for the Ethereum accounts that the Keyring is able to sign for.
 
 ### signTransaction(address, transaction)
 
@@ -68,7 +68,7 @@ Returns a signed ethereumjs-tx (https://github.com/ethereumjs/ethereumjs-tx) obj
 
 ### signMessage(address, data)
 
-Takes a pre-hashed message (`data`) and signs it using the account of the hex-prefixed `address` passed in. Returns the concatenated hex signature with V, R, and S.
+Takes a pre-hashed message (`data`) and signs it using the account of the hex-prefixed `address` passed in. Returns the concatenated hex signature with the V, R, and S.
 
 Testing
 -------
