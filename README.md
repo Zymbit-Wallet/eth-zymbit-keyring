@@ -62,9 +62,9 @@ Returns an array of hex-string addresses for the Ethereum accounts that the keyr
 
 Takes a hex-prefixed `address` string for the account you want to use to sign the incoming transaction with.
 
-The `transaction` is an instance of ethereumjs-tx, (https://github.com/ethereumjs/ethereumjs-tx)
+The `transaction` is an instance of [ethereumjs-tx](https://github.com/ethereumjs/ethereumjs-tx), 
 
-Returns a signed ethereumjs-tx (https://github.com/ethereumjs/ethereumjs-tx) object when complete.
+Returns a signed [ethereumjs-tx](https://github.com/ethereumjs/ethereumjs-tx) object when complete.
 
 ### signMessage(address, data)
 
