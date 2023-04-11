@@ -48,7 +48,7 @@ Retuerns a JSON-serializable object with the `wallet_name` or `master_slot` prop
 
 ### deserialize( object )
 
-As discussed above, the `deserialize()` method will be passed the JavaScript object that you returned when the `serialize()` method was called.
+As discussed above, the `deserialize()` method will be passed the JSON object that was returned when the `serialize()` method was called.
 
 ### addAccounts( n = 1 )
 
@@ -60,11 +60,7 @@ Returns an array of hex-string addresses for the Ethereum accounts that the keyr
 
 ### signTransaction(address, transaction)
 
-Takes a hex-prefixed `address` string for the account you want to use to sign the incoming transaction with.
-
-The `transaction` is an instance of [ethereumjs-tx](https://github.com/ethereumjs/ethereumjs-tx), 
-
-Returns a signed [ethereumjs-tx](https://github.com/ethereumjs/ethereumjs-tx) object when complete.
+Takes a hex-prefixed `address` string for the account you want to use to sign the incoming `transaction` with. The `transaction` is an instance of [ethereumjs-tx](https://github.com/ethereumjs/ethereumjs-tx). Returns a signed [ethereumjs-tx](https://github.com/ethereumjs/ethereumjs-tx) object when complete.
 
 ### signMessage(address, data)
 
