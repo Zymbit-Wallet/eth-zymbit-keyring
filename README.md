@@ -52,7 +52,7 @@ As discussed above, the `deserialize()` method will be passed the JavaScript obj
 
 ### addAccounts( n = 1 )
 
-Used to add new accounts to the keyring starting from `m/44'/60'/0'/0` and incrementing the last index each time. Takes the number of accounts you want to add to the keyring `n` as a parameter, and returns an array of size `n` including the Ethereum addresses of the accounts added.
+Used to add new accounts to the keyring starting from `m/44'/60'/0'/0` and incrementing the last index each time. Takes the number of accounts you want to add to the keyring `n` as a parameter (defaults to `n = 1`), and returns an array of size `n` including the Ethereum addresses of the accounts added.
 
 ### getAccounts()
 
