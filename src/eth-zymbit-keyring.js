@@ -195,10 +195,10 @@ class ZymbitKeyring {
     return validSignature
   }
 
-  _getSlot(address){
-    try{
+  _getSlot(address) {
+    try {
       return (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
-    } catch(e) {
+    } catch (e) {
       return false
     }
   }

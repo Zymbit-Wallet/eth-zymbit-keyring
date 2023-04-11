@@ -30,17 +30,21 @@ const options = {
 const keyring = new ZymbitKeyring(options);
 ```
 
+### Keyring.type
+
+A class property that returns `Zymbit Hardware Wallet`
+
 ### constructor( options )
 
 The constructor receives an options object that requires either a valid `wallet_name` or `master_slot` property. In order to use this, you must have created or recovered a BIP39 wallet through [Zymbit's API](https://docs.zymbit.com/tutorials/digital-wallet/wallet-example/).
 
-## Keyring Instance Methods
+## Zymbit Keyring Instance Methods
 
 All below instance methods return Promises to allow asynchronous resolution.
 
 ### serialize()
 
-In this method, you must return any JSON-serializable JavaScript object that you like. It will be encoded to a string, encrypted with the user's password, and stored to disk. This is the same object you will receive in the deserialize() method, so it should capture all the information you need to restore the Keyring's state.
+Retuerns a JSON-serializable object with the `wallet_name` or `master_slot` properties of the keyring. This object can be passed into `deserilaize()` to recover the state of the keyring. 
 
 ### deserialize( object )
 
@@ -48,29 +52,23 @@ As discussed above, the deserialize() method will be passed the JavaScript objec
 
 ### addAccounts( n = 1 )
 
-The addAccounts(n) method is used to inform your keyring that the user wishes to create a new account. You should perform whatever internal steps are needed so that a call to serialize() will persist the new account, and then return an array of the new account addresses.
-
-The method may be called with or without an argument, specifying the number of accounts to create. You should generally default to 1 per call.
+Used to add new accounts to the keyring starting from `m/44'/60'/0'/0` and incrementing the last index each time. Takes the number of accounts you want to add to the keyring `n` as a parameter, and returns an array of size `n` including the Ethereum addresses of the accounts added.
 
 ### getAccounts()
 
-When this method is called, you must return an array of hex-string addresses for the accounts that your Keyring is able to sign for.
+Returns an array of hex-string addresses for the Ethereum accounts that your Keyring is able to sign for.
 
 ### signTransaction(address, transaction)
 
-This method will receive a hex-prefixed, all-lowercase address string for the account you should sign the incoming transaction with.
+Takes a hex-prefixed `address` string for the account you want to use to sign the incoming transaction with.
 
-For your convenience, the transaction is an instance of ethereumjs-tx, (https://github.com/ethereumjs/ethereumjs-tx) so signing can be as simple as:
+The `transaction` is an instance of ethereumjs-tx, (https://github.com/ethereumjs/ethereumjs-tx)
 
-```
-transaction.sign(privateKey)
-```
-
-You must return a valid signed ethereumjs-tx (https://github.com/ethereumjs/ethereumjs-tx) object when complete, it can be the same transaction you received.
+Returns a signed ethereumjs-tx (https://github.com/ethereumjs/ethereumjs-tx) object when complete.
 
 ### signMessage(address, data)
 
-The `eth_sign` method will receive the incoming data, alread hashed, and must sign that hash, and then return the raw signed hash.
+Takes a pre-hashed message (`data`) and signs it using the account of the hex-prefixed `address` passed in. Returns the concatenated hex signature with V, R, and S.
 
 Testing
 -------
