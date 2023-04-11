@@ -68,7 +68,7 @@ Returns a signed ethereumjs-tx (https://github.com/ethereumjs/ethereumjs-tx) obj
 
 ### signMessage(address, data)
 
-Takes a pre-hashed message (`data`) and signs it using the account of the hex-prefixed `address` passed in. Returns the concatenated hex signature with the V, R, and S.
+Takes a pre-hashed message (`data`) and signs it using the account of the hex-prefixed `address` passed in. Returns the complete hex-prefixed ECDSA signature.
 
 Testing
 -------
