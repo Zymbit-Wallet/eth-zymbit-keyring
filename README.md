@@ -32,11 +32,11 @@ const keyring = new ZymbitKeyring(options);
 
 ### constructor( options )
 
-The constructor receives an options object that requires either a `wallet_name` or `master_slot` property.
+The constructor receives an options object that requires either a valid `wallet_name` or `master_slot` property. In order to use this, you must have created or recovered a BIP39 wallet through [Zymbit's API](https://docs.zymbit.com/tutorials/digital-wallet/wallet-example/).
 
 ## Keyring Instance Methods
 
-All below instance methods must return Promises to allow asynchronous resolution.
+All below instance methods return Promises to allow asynchronous resolution.
 
 ### serialize()
 

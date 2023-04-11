@@ -15,10 +15,10 @@ class ZymbitKeyring {
   }
 
   serialize() {
-    return {
+    return Promise.resolve({
       wallet_name: this.wallet_name,
       master_slot: this.master_slot
-    }
+    })
   }
 
   deserialize(opts = {}) {
@@ -81,7 +81,7 @@ class ZymbitKeyring {
       }
       this.base_slot = this._generateBasePathKey(deepestPath)
     }
-    
+    return Promise.resolve()
   }
 
 
@@ -106,11 +106,11 @@ class ZymbitKeyring {
       nextAccountIndex++
     }
 
-    return newAccounts
+    return Promise.resolve(newAccounts)
   }
 
   getAccounts() {
-    return this.account_slots.map(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))))
+    return Promise.resolve(this.account_slots.map(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false)))))
   }
 
   signTransaction(address, transaction) {
@@ -125,7 +125,7 @@ class ZymbitKeyring {
     transaction.s = validSignature.s
     transaction.v = validSignature.v
 
-    return transaction
+    return Promise.resolve(transaction)
   }
 
   signMessage(address, data) {
@@ -137,7 +137,7 @@ class ZymbitKeyring {
 
     const validSignature = this._generateValidECDSASignature(signature, recovery_id)
 
-    return concatSig(validSignature.v, validSignature.r, validSignature.s)
+    return Promise.resolve(concatSig(validSignature.v, validSignature.r, validSignature.s))
   }
 
   exportAccount(address) {
@@ -148,6 +148,7 @@ class ZymbitKeyring {
     const slot = this._getSlot(address)
     if (!slot) throw new Error("Keyring does not contain this address")
     zk.removeKey(slot, false)
+    return Promise.resolve()
   }
 
   _generateBasePathKey(deepestPath) {
