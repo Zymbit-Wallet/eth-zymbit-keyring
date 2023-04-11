@@ -56,7 +56,7 @@ Used to add new accounts to the keyring starting from `m/44'/60'/0'/0` and incre
 
 ### getAccounts()
 
-Returns an array of hex-string addresses for the Ethereum accounts that the Keyring is able to sign for.
+Returns an array of hex-string addresses for the Ethereum accounts that the keyring is able to sign for.
 
 ### signTransaction(address, transaction)
 
@@ -69,6 +69,10 @@ Returns a signed ethereumjs-tx (https://github.com/ethereumjs/ethereumjs-tx) obj
 ### signMessage(address, data)
 
 Takes a pre-hashed message (`data`) and signs it using the account of the hex-prefixed `address` passed in. Returns the complete hex-prefixed ECDSA signature.
+
+### removeAccount(address)
+
+Removes the account corresponding to the hex-prefixed `address` passed in from the keyring and the Zymbit device.
 
 Testing
 -------

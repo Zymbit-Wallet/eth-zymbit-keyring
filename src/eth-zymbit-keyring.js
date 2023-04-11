@@ -148,6 +148,11 @@ class ZymbitKeyring {
     const slot = this._getSlot(address)
     if (!slot) throw new Error("Keyring does not contain this address")
     zk.removeKey(slot, false)
+    for (let i = 0; i < this.account_slots.length; i++) {
+      if(this.account_slots[i].slot == slot){
+        delete this.account_slots[i]
+      }
+    }
     return Promise.resolve()
   }
 
