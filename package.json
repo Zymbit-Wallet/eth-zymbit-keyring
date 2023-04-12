@@ -26,10 +26,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ShivaanshK/eth-zymbit-keyring.git"
+    "url": "git+https://github.com/Zymbit-Wallet/eth-zymbit-keyring"
   },
   "bugs": {
-    "url": "https://github.com/ShivaanshK/eth-zymbit-keyring/issues"
+    "url": "https://github.com/Zymbit-Wallet/eth-zymbit-keyring/issues"
   },
-  "homepage": "https://github.com/ShivaanshK/eth-zymbit-keyring#readme"
+  "homepage": "https://github.com/Zymbit-Wallet/eth-zymbit-keyring#readme"
 }
