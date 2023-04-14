@@ -52,7 +52,7 @@ const keyring = new ZymbitKeyring(options);
 
 A class property that returns `Zymbit Hardware Wallet`
 
-### constructor( options )
+### constructor(options)
 
 The constructor receives an options object that requires either a valid `wallet_name` or `master_slot` property. In order to use this, you must have created or recovered a BIP39 wallet through [Zymbit's API](https://docs.zymbit.com/tutorials/digital-wallet/wallet-example/).
 
@@ -64,7 +64,7 @@ All below instance methods return Promises to allow asynchronous resolution.
 
 Returns a JSON-serializable object with the `wallet_name` or `master_slot` properties of the keyring. This object can be passed into `deserialize()` to recover the state of the keyring. 
 
-### deserialize( object )
+### deserialize(object)
 
 As discussed above, the `deserialize()` method will be passed the JSON object that was returned when the `serialize()` method was called.
 
