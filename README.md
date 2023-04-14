@@ -1,6 +1,25 @@
 # eth-zymbit-keyring
 
-An implementation of MetaMask's [Keyring interface](https://github.com/MetaMask/eth-simple-keyring#the-keyring-class-protocol) for Zymbit devices with built in hardware wallets ([HSM6](https://www.zymbit.com/hsm6/) and [SCM](https://www.zymbit.com/scm/)).
+An implementation of MetaMask's [Keyring interface](https://github.com/MetaMask/eth-simple-keyring#the-keyring-class-protocol) for Zymbit devices with built-in hardware wallets ([HSM6](https://www.zymbit.com/hsm6/) and [SCM](https://www.zymbit.com/scm/)).
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [Usage](#usage)
+- [ZymbitKeyring.type](#zymbitkeyringtype)
+- [constructor(options)](#constructor-options)
+- [Zymbit Keyring Instance Methods](#zymbit-keyring-instance-methods)
+  - [serialize()](#serialize)
+  - [deserialize(object)](#deserialize-object)
+  - [addAccounts(n = 1)](#addaccounts-n--1-)
+  - [getAccounts()](#getaccounts)
+  - [signTransaction(address, transaction)](#signtransactionaddress-transaction)
+  - [signMessage(address, data)](#signmessageaddress-data)
+  - [removeAccount(address)](#removeaccountaddress)
+- [Testing](#testing)
+
+## Overview
 
 For the most part, it works the same way as [eth-hd-keyring](https://github.com/MetaMask/eth-hd-keyring), but uses a Zymbit HSM6 or SCM to store the keys and perform any signing operations. However, there are some differences:
 
@@ -8,8 +27,8 @@ For the most part, it works the same way as [eth-hd-keyring](https://github.com/
 - All cryptographic operations involving keys are performed on the module itself
 - Zymbit devices don't support exporting private keys, so it does not support the `exportAccount()` method 
 
-Installation
--------
+## Installation
+
 Run the following command:
 
 `yarn add eth-zymbit-keyring`
@@ -18,8 +37,7 @@ or
 
 `npm install eth-zymbit-keyring`
 
-Usage
--------
+## Usage
 
 ```
 const ZymbitKeyring = require('eth-zymbit-keyring')
@@ -30,7 +48,7 @@ const options = {
 const keyring = new ZymbitKeyring(options);
 ```
 
-### Keyring.type
+### ZymbitKeyring.type
 
 A class property that returns `Zymbit Hardware Wallet`
 
@@ -44,7 +62,7 @@ All below instance methods return Promises to allow asynchronous resolution.
 
 ### serialize()
 
-Retuerns a JSON-serializable object with the `wallet_name` or `master_slot` properties of the keyring. This object can be passed into `deserialize()` to recover the state of the keyring. 
+Returns a JSON-serializable object with the `wallet_name` or `master_slot` properties of the keyring. This object can be passed into `deserialize()` to recover the state of the keyring. 
 
 ### deserialize( object )
 
@@ -70,8 +88,8 @@ Takes a pre-hashed message (`data`) and signs it using the account of the hex-pr
 
 Removes the account corresponding to the hex-prefixed `address` passed in from the keyring and the Zymbit device.
 
-Testing
--------
+## Testing
+
 Run the following command:
 
 `npm test`
