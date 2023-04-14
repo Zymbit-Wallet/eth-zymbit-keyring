@@ -1,4 +1,4 @@
-const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
+const zkJS = require('zymkey-js/build/Release/zkAppUtilsJS.node');
 const { ethers } = require("ethers");
 const { bytesToHex } = require('ethereum-cryptography/utils');
 const { BN, stripHexPrefix } = require('ethereumjs-util')
@@ -6,7 +6,7 @@ const { concatSig } = require('@metamask/eth-sig-util');
 
 const BIP44_ETH_BASE_PATH = `m/44'/60'/0'/0`
 const type = 'Zymbit Hardware Wallet'
-const zk = new zkJS.zkObj()
+const zymkey = new zkJS.zkObj()
 
 class ZymbitKeyring {
 
@@ -27,14 +27,14 @@ class ZymbitKeyring {
     }
     if (opts.wallet_name) {
       try {
-        this.master_slot = zk.getWalletKeySlotFromNodeAddr("m", opts.wallet_name)
+        this.master_slot = zymkey.getWalletKeySlotFromNodeAddr("m", opts.wallet_name)
         this.wallet_name = opts.wallet_name
       } catch {
         throw new Error("Invalid Wallet Name")
       }
     } else {
       try {
-        const slotDetails = zk.getWalletNodeAddrFromKeySlot(opts.master_slot)
+        const slotDetails = zymkey.getWalletNodeAddrFromKeySlot(opts.master_slot)
         if (slotDetails.node_address == 'm') {
           this.master_slot = opts.master_slot
           this.wallet_name = slotDetails.wallet_name
@@ -49,14 +49,14 @@ class ZymbitKeyring {
     this.account_slots = []
 
     const slots = []
-    const slotsBuffer = zk.getAllocSlotsList(false)
+    const slotsBuffer = zymkey.getAllocSlotsList(false)
     for (let i = 0; i < slotsBuffer.length / 4; i++) {
       const slot = slotsBuffer.readInt32LE(4 * i)
       if (slot > 15) slots.push(slot)
     }
 
     for (const slot of slots) {
-      const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot)
+      const slotDetails = zymkey.getWalletNodeAddrFromKeySlot(slot)
       if (slotDetails.wallet_name == this.wallet_name) {
         if (slotDetails.node_address == ZymbitKeyring.base_path) {
           this.base_slot = slot
@@ -70,7 +70,7 @@ class ZymbitKeyring {
     if (this.base_slot == 0) {
       let deepestPath = { node_address: "m", slot: this.master_slot }
       for (const slot of slots) {
-        const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot)
+        const slotDetails = zymkey.getWalletNodeAddrFromKeySlot(slot)
         if (slotDetails.wallet_name == this.wallet_name) {
           if (ZymbitKeyring.base_path.includes(slotDetails.node_address) && slotDetails.node_address.length > deepestPath.node_address.length) {
             slotDetails.slot = slot
@@ -96,12 +96,12 @@ class ZymbitKeyring {
     }, 0)
 
     for (let i = 0; i < n; i++) {
-      const slot = zk.genWalletChildKey(this.base_slot, nextAccountIndex, false, false)
-      const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot.slot)
+      const slot = zymkey.genWalletChildKey(this.base_slot, nextAccountIndex, false, false)
+      const slotDetails = zymkey.getWalletNodeAddrFromKeySlot(slot.slot)
       slotDetails.slot = slot.slot
       delete slotDetails.wallet_name
       this.account_slots.push(slotDetails)
-      const newAccountEthAddress = ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(slotDetails.slot, false)))
+      const newAccountEthAddress = ethers.computeAddress('0x' + bytesToHex(zymkey.exportPubKey(slotDetails.slot, false)))
       newAccounts.push(newAccountEthAddress)
       nextAccountIndex++
     }
@@ -110,7 +110,7 @@ class ZymbitKeyring {
   }
 
   getAccounts() {
-    return Promise.resolve(this.account_slots.map(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false)))))
+    return Promise.resolve(this.account_slots.map(obj => ethers.computeAddress('0x' + bytesToHex(zymkey.exportPubKey(obj.slot, false)))))
   }
 
   signTransaction(address, transaction) {
@@ -118,7 +118,7 @@ class ZymbitKeyring {
     if (!signingSlot) throw new Error("Keyring does not contain this address")
 
     const txHash = transaction.hash(true)
-    const { signature, recovery_id } = zk.genECDSASigFromDigest(txHash, signingSlot)
+    const { signature, recovery_id } = zymkey.genECDSASigFromDigest(txHash, signingSlot)
 
     const validSignature = this._generateValidECDSASignature(signature, recovery_id, transaction.getChainId())
     transaction.r = validSignature.r
@@ -133,7 +133,7 @@ class ZymbitKeyring {
     if (!signingSlot) throw new Error("Keyring does not contain this address")
 
     const messageToSign = Buffer.from(stripHexPrefix(data), 'hex')
-    const { signature, recovery_id } = zk.genECDSASigFromDigest(messageToSign, signingSlot)
+    const { signature, recovery_id } = zymkey.genECDSASigFromDigest(messageToSign, signingSlot)
 
     const validSignature = this._generateValidECDSASignature(signature, recovery_id)
 
@@ -147,7 +147,7 @@ class ZymbitKeyring {
   removeAccount(address) {
     const slot = this._getSlot(address)
     if (!slot) throw new Error("Keyring does not contain this address")
-    zk.removeKey(slot, false)
+    zymkey.removeKey(slot, false)
     for (let i = 0; i < this.account_slots.length; i++) {
       if(this.account_slots[i].slot == slot){
         delete this.account_slots[i]
@@ -160,21 +160,21 @@ class ZymbitKeyring {
     let slot = 0
     switch (deepestPath.node_address) {
       case `m`:
-        slot = zk.genWalletChildKey(deepestPath.slot, 44, true, false)
+        slot = zymkey.genWalletChildKey(deepestPath.slot, 44, true, false)
         break;
       case `m/44'`:
-        slot = zk.genWalletChildKey(deepestPath.slot, 60, true, false)
+        slot = zymkey.genWalletChildKey(deepestPath.slot, 60, true, false)
         break;
       case `m/44'/60'`:
-        slot = zk.genWalletChildKey(deepestPath.slot, 0, true, false)
+        slot = zymkey.genWalletChildKey(deepestPath.slot, 0, true, false)
         break;
       case `m/44'/60'/0'`:
-        slot = zk.genWalletChildKey(deepestPath.slot, 0, false, false)
+        slot = zymkey.genWalletChildKey(deepestPath.slot, 0, false, false)
         break;
       case ZymbitKeyring.base_path:
         return deepestPath.slot
     }
-    const slotDetails = zk.getWalletNodeAddrFromKeySlot(slot.slot)
+    const slotDetails = zymkey.getWalletNodeAddrFromKeySlot(slot.slot)
     slotDetails.slot = slot.slot
     return this._generateBasePathKey(slotDetails)
   }
@@ -202,7 +202,7 @@ class ZymbitKeyring {
 
   _getSlot(address) {
     try {
-      return (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zk.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
+      return (this.account_slots.find(obj => ethers.computeAddress('0x' + bytesToHex(zymkey.exportPubKey(obj.slot, false))).toLowerCase() === address.toLowerCase())).slot
     } catch (e) {
       return false
     }
