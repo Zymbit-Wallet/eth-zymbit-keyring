@@ -24,7 +24,7 @@ Usage
 ```
 const ZymbitKeyring = require('eth-zymbit-keyring')
 const options = {
-    wallet_name: "MyExampleWallet"
+    wallet_name: "MyExampleWallet",
     master_slot: 16
 }
 const keyring = new ZymbitKeyring(options);
