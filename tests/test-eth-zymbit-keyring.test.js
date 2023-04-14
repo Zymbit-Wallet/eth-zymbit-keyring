@@ -1,17 +1,17 @@
 const assert = require('assert')
-const zkJS = require('../zkJS/build/Release/zkAppUtilsJS.node');
+const zkJS = require('zymkey-js/build/Release/zkAppUtilsJS.node');
 const ZymbitKeyring = require('../src/eth-zymbit-keyring');
 const { bytesToHex } = require('ethereum-cryptography/utils');
 const { ethers } = require('ethers');
 const { randomInt } = require('crypto');
-const zk = new zkJS.zkObj()
+const zymkey = new zkJS.zkObj()
 const EthereumTx = require('ethereumjs-tx').Transaction
 const { stripHexPrefix } = require('ethereumjs-util')
 const { toBuffer, ecrecover, pubToAddress } = require('@ethereumjs/util');
 
 const getStartingSlots = () => {
     const startingSlots = []
-    const slotsBuffer = zk.getAllocSlotsList(false)
+    const slotsBuffer = zymkey.getAllocSlotsList(false)
     for (let i = 0; i < slotsBuffer.length / 4; i++) {
         const slot = slotsBuffer.readInt32LE(4 * i)
         if (slot > 15) startingSlots.push(slot)
@@ -20,10 +20,10 @@ const getStartingSlots = () => {
 }
 
 const removeKeysCreated = startingSlots => {
-    const slotsBuffer = zk.getAllocSlotsList(false)
+    const slotsBuffer = zymkey.getAllocSlotsList(false)
     for (let i = 0; i < slotsBuffer.length / 4; i++) {
         const slot = slotsBuffer.readInt32LE(4 * i)
-        if (slot > 15 && !startingSlots.includes(slot)) zk.removeKey(slot, false)
+        if (slot > 15 && !startingSlots.includes(slot)) zymkey.removeKey(slot, false)
     }
 }
 
@@ -35,7 +35,7 @@ describe('ZymbitKeyring', function () {
         this.timeout(20000)
         startingSlots = getStartingSlots()
         wallet_name = "TestWallet"
-        const { slot, mnemonic } = zk.genWalletMasterSeedWithBIP39("secp256k1", wallet_name, "", "")
+        const { slot, mnemonic } = zymkey.genWalletMasterSeedWithBIP39("secp256k1", wallet_name, "", "")
         master_slot = slot
         opts = {
             wallet_name,
@@ -49,7 +49,7 @@ describe('ZymbitKeyring', function () {
 
         let baseSlotDetails
         before('Get base_slot details', function () {
-            baseSlotDetails = zk.getWalletNodeAddrFromKeySlot(keyring.base_slot)
+            baseSlotDetails = zymkey.getWalletNodeAddrFromKeySlot(keyring.base_slot)
         })
         it('constructs', function () {
             assert.equal(typeof keyring, 'object')
@@ -70,7 +70,7 @@ describe('ZymbitKeyring', function () {
             this.timeout(20000)
             numAccounts = randomInt(3, 11)
             accounts = keyring.addAccounts(numAccounts).then(arr => accounts = arr)
-            publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
+            publicKeys = keyring.account_slots.map(account_slot => zymkey.exportPubKey(account_slot.slot, false))
             done()
         })
 
@@ -96,7 +96,7 @@ describe('ZymbitKeyring', function () {
         before('Get accounts', function (done) {
             this.timeout(20000)
             accounts = keyring.getAccounts().then(arr => accounts = arr)
-            publicKeys = keyring.account_slots.map(account_slot => zk.exportPubKey(account_slot.slot, false))
+            publicKeys = keyring.account_slots.map(account_slot => zymkey.exportPubKey(account_slot.slot, false))
             done()
         })
 
@@ -183,7 +183,7 @@ describe('ZymbitKeyring', function () {
         before('Setup Temporary Keyring', function (done) {
             this.timeout(20000)
             temp_wallet_name = "TestWallet1"
-            const { temp_slot, temp_mnemonic } = zk.genWalletMasterSeedWithBIP39("secp256k1", temp_wallet_name, "", "")
+            const { temp_slot, temp_mnemonic } = zymkey.genWalletMasterSeedWithBIP39("secp256k1", temp_wallet_name, "", "")
             temp_opts = {
                 wallet_name: temp_wallet_name,
                 master_slot: temp_slot

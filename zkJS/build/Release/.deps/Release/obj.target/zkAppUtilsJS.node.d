@@ -1,1 +1,0 @@
-cmd_Release/obj.target/zkAppUtilsJS.node := g++ -o Release/obj.target/zkAppUtilsJS.node -shared -pthread -rdynamic  -Wl,-soname=zkAppUtilsJS.node -Wl,--start-group Release/obj.target/zkAppUtilsJS/src/zkAppUtilsClassJS.o -Wl,--end-group /usr/lib/libzkAppUtilsClassCPP.so /usr/lib/libzk_app_utils.so /usr/lib/libzk.so
