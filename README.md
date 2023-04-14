@@ -8,10 +8,10 @@ An implementation of MetaMask's [Keyring interface](https://github.com/MetaMask/
 - [Installation](#installation)
 - [Usage](#usage)
 - [ZymbitKeyring.type](#zymbitkeyringtype)
-- [constructor(options)](#constructor-options)
+- [constructor( options )](#constructor-options)
 - [Zymbit Keyring Instance Methods](#zymbit-keyring-instance-methods)
   - [serialize()](#serialize)
-  - [deserialize(object)](#deserialize-object)
+  - [deserialize( object )](#deserialize-object)
   - [addAccounts(n = 1)](#addaccounts-n--1-)
   - [getAccounts()](#getaccounts)
   - [signTransaction(address, transaction)](#signtransactionaddress-transaction)
@@ -48,11 +48,11 @@ const options = {
 const keyring = new ZymbitKeyring(options);
 ```
 
-### ZymbitKeyring.type
+## ZymbitKeyring.type
 
 A class property that returns `Zymbit Hardware Wallet`
 
-### constructor( options )
+## constructor( options )
 
 The constructor receives an options object that requires either a valid `wallet_name` or `master_slot` property. In order to use this, you must have created or recovered a BIP39 wallet through [Zymbit's API](https://docs.zymbit.com/tutorials/digital-wallet/wallet-example/).
 
